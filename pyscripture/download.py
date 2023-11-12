@@ -1,46 +1,64 @@
 import requests
 import pandas as pd
+import hashlib
+import functools
 
-from typing import Dict
+from typing import Callable, Dict
+from pyscripture import books
+
+from typing_extensions import ParamSpec
+
+P = ParamSpec("P")
+
+def expected_hash(expected_sha256_hash:str) -> Callable[[Callable[P,str]], Callable[P,str]]:
+    """Decorator to check that a function returns a string with a specific hash.
+
+    Args:
+        expected_sha256_hash: The expected sha256 hash of the string returned from the decorated function.
+
+    Raises:
+        ValueError: If the hash of the returned string does not match the expected hash.
+
+    Returns:
+        A decorator that checks that the returned string has the expected hash.
+    """
+
+    def decorator(func:Callable[P,str]) -> Callable[P,str]:
+        @functools.wraps(func)
+        def wrapper(*args:P.args, **kwargs:P.kwargs) -> str:
+            downloaded_text = func(*args, **kwargs)
+            actual_sha256_hash = hashlib.sha256(downloaded_text.encode()).hexdigest()
+            if actual_sha256_hash != expected_sha256_hash:
+                raise ValueError(f"When calling {func}, Expected hash {expected_sha256_hash}, but got {actual_sha256_hash}")
+            return downloaded_text
+        return wrapper
+    return decorator
 
 
+@functools.lru_cache(maxsize=1)
+@expected_hash(expected_sha256_hash="ccbd4765243daafcf5e8536d421a93cc7037e86d6a067bfaa4c55d8f0de5ea6e")
 def download_text() -> str:
     """Download text of all scripture from GitHub.
 
     Returns:
         All scripture text as a single string.
     """
-    req = requests.get('http://raw.githubusercontent.com/beandog/lds-scriptures/master/text/lds-scriptures.txt')
+    req = requests.get("http://raw.githubusercontent.com/beandog/lds-scriptures/master/text/lds-scriptures.txt")
     return req.text
 
-
-book_of_mormon_books = ('1 Nephi', '2 Nephi', 'Jacob', 'Enos', 'Jarom', 'Omni', 'Words of Mormon', 'Mosiah', 'Alma',
-                        'Helaman', '3 Nephi', '4 Nephi', 'Mormon', 'Ether', 'Moroni')
-old_testament_books = (
-    'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', 'Ruth', '1 Samuel', '2 Samuel',
-    '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles', 'Ezra', 'Nehemiah', 'Esther', 'Job', 'Psalms', 'Proverbs',
-    'Ecclesiastes', 'Song of Solomon', 'Isaiah', 'Jeremiah', 'Lamentations', 'Ezekiel', 'Daniel', 'Hosea', 'Joel',
-    'Amos',
-    'Obadiah', 'Jonah', 'Micah', 'Nahum', 'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi',)
-new_testament_books = (
-    'Matthew', 'Mark', 'Luke', 'John', 'Acts', 'Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians',
-    'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', '1 Timothy', '2 Timothy', 'Titus', 'Philemon',
-    'Hebrews', 'James', '1 Peter', '2 Peter', '1 John', '2 John', '3 John', 'Jude', 'Revelation',)
-doctrine_and_covenants_books = ('Doctrine and Covenants',)
-pearl_of_great_price_books = ('Moses', 'Abraham', 'Joseph Smith--Matthew', 'Joseph Smith--History', 'Articles of Faith')
-
-
 def organize_books_lookup() -> Dict[str, str]:
-    books = {b: "Book of Mormon" for b in book_of_mormon_books}
-    for b in old_testament_books:
-        books[b] = "Old Testament"
-    for b in new_testament_books:
-        books[b] = "New Testament"
-    for b in doctrine_and_covenants_books:
-        books[b] = "Doctrine and Covenants"
-    for b in pearl_of_great_price_books:
-        books[b] = "Pearl of Great Price"
-    return books
+    """Organize books with their Parent Books into a lookup table."""
+    parent_books = {b.value: "Book of Mormon" for b in books.BookOfMormonBooks}
+    for b in books.OldTestamentBooks:
+        parent_books[b.value] = "Old Testament"
+    for b in books.NewTestamentBooks:
+        parent_books[b.value] = "New Testament"
+    for b in books.DoctrineAndCovenantsBooks:
+        parent_books[b.value] = "Doctrine and Covenants"
+    for b in books.PearlOfGreatPriceBooks:
+        parent_books[b.value] = "Pearl of Great Price"
+    return parent_books
+
 
 def get_dataframe() -> pd.DataFrame:
     """Obtain scripture DataFrame.
@@ -59,13 +77,14 @@ def get_dataframe() -> pd.DataFrame:
 
     """
     text = download_text()
-    books = organize_books_lookup()
+    parents_books = organize_books_lookup()
 
     lines = text.splitlines()
     verses = dict([tuple(t.split("     ", maxsplit=1)) for t in lines])
     verses = {tuple(k.rsplit(" ", maxsplit=1)): v for k, v in verses.items()}
-    verses = {(books[k[0]], k[0], *[int(n) for n in k[1].split(":")]): v for k, v in verses.items()}
+    verses = {(parents_books[k[0]], k[0], *[int(n) for n in k[1].split(":")]): v for k, v in verses.items()}
 
-    df = pd.DataFrame.from_dict(verses, orient="index", columns=['Text'])
+    df = pd.DataFrame.from_dict(verses, orient="index", columns=["Text"])
     df.index = pd.MultiIndex.from_tuples(df.index)
+    df['Text'] = df['Text'].str.strip()
     return df
