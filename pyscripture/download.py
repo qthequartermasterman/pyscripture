@@ -1,16 +1,17 @@
-import requests
-import pandas as pd
-import hashlib
 import functools
-
+import hashlib
 from typing import Callable, Dict
-from pyscripture import books
 
+import pandas as pd
+import requests
 from typing_extensions import ParamSpec
+
+from pyscripture import books
 
 P = ParamSpec("P")
 
-def expected_hash(expected_sha256_hash:str) -> Callable[[Callable[P,str]], Callable[P,str]]:
+
+def expected_hash(expected_sha256_hash: str) -> Callable[[Callable[P, str]], Callable[P, str]]:
     """Decorator to check that a function returns a string with a specific hash.
 
     Args:
@@ -23,15 +24,19 @@ def expected_hash(expected_sha256_hash:str) -> Callable[[Callable[P,str]], Calla
         A decorator that checks that the returned string has the expected hash.
     """
 
-    def decorator(func:Callable[P,str]) -> Callable[P,str]:
+    def decorator(func: Callable[P, str]) -> Callable[P, str]:
         @functools.wraps(func)
-        def wrapper(*args:P.args, **kwargs:P.kwargs) -> str:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> str:
             downloaded_text = func(*args, **kwargs)
             actual_sha256_hash = hashlib.sha256(downloaded_text.encode()).hexdigest()
             if actual_sha256_hash != expected_sha256_hash:
-                raise ValueError(f"When calling {func}, Expected hash {expected_sha256_hash}, but got {actual_sha256_hash}")
+                raise ValueError(
+                    f"When calling {func}, Expected hash {expected_sha256_hash}, but got {actual_sha256_hash}"
+                )
             return downloaded_text
+
         return wrapper
+
     return decorator
 
 
@@ -45,6 +50,7 @@ def download_text() -> str:
     """
     req = requests.get("http://raw.githubusercontent.com/beandog/lds-scriptures/master/text/lds-scriptures.txt")
     return req.text
+
 
 def organize_books_lookup() -> Dict[str, str]:
     """Organize books with their Parent Books into a lookup table."""
@@ -86,5 +92,5 @@ def get_dataframe() -> pd.DataFrame:
 
     df = pd.DataFrame.from_dict(verses, orient="index", columns=["Text"])
     df.index = pd.MultiIndex.from_tuples(df.index)
-    df['Text'] = df['Text'].str.strip()
+    df["Text"] = df["Text"].str.strip()
     return df

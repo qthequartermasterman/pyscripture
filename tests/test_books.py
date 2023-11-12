@@ -1,5 +1,7 @@
 import unittest
+
 from pyscripture import books
+
 
 class TestBooks(unittest.TestCase):
     def test_book_of_mormon_len(self):
@@ -21,4 +23,3 @@ class TestBooks(unittest.TestCase):
     def test_pearl_of_great_price_len(self):
         """Test that the Pearl of Great Price has the correct number of books."""
         self.assertEqual(len(books.PearlOfGreatPriceBooks), 5)
-

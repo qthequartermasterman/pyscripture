@@ -1,18 +1,25 @@
+import hashlib
 import itertools
 import unittest
-import hashlib
 
-import pandas as pd
-
-from pyscripture import download, books
 import hypothesis
+import pandas as pd
 from hypothesis import strategies as st
 
-EXPECTED_BOOKS = itertools.chain(books.BookOfMormonBooks, books.OldTestamentBooks, books.NewTestamentBooks, books.DoctrineAndCovenantsBooks, books.PearlOfGreatPriceBooks)
+from pyscripture import books, download
+
+EXPECTED_BOOKS = itertools.chain(
+    books.BookOfMormonBooks,
+    books.OldTestamentBooks,
+    books.NewTestamentBooks,
+    books.DoctrineAndCovenantsBooks,
+    books.PearlOfGreatPriceBooks,
+)
+
 
 class TestExpectedHash(unittest.TestCase):
     @hypothesis.given(st.text())
-    def test_expected_hash(self, text:str) -> None:
+    def test_expected_hash(self, text: str) -> None:
         """Test that `expected_hash` returns the same string it was passed."""
         expected_hash = hashlib.sha256(text.encode()).hexdigest()
 
@@ -43,7 +50,6 @@ class TestExpectedHash(unittest.TestCase):
             func_incorrect()
 
 
-
 class TestDownloadTextIntegration(unittest.TestCase):
     def test_download_text(self) -> None:
         """Test that `download_text` downloads the text of all scripture in the same format we expect."""
@@ -55,16 +61,16 @@ class TestDownloadTextIntegration(unittest.TestCase):
         assert downloaded_text.startswith("Genesis 1:1     In the beginning God created the heaven and the earth.")
         assert actual_sha256_hash == expected_sha256_hash
 
+
 class TestOrganizeBooksLookup(unittest.TestCase):
     def test_organize_books_lookup(self) -> None:
         """Test that `organize_books_lookup` returns the correct dictionary."""
         books_lookup = download.organize_books_lookup()
 
-
-
         for book in EXPECTED_BOOKS:
             self.assertIn(book.value, books_lookup)
             self.assertEqual(books_lookup[book.value], books.parent_names[book.__class__])
+
 
 class TestGetDataframe(unittest.TestCase):
     def test_get_dataframe(self) -> None:
@@ -83,14 +89,15 @@ class TestGetDataframe(unittest.TestCase):
             {book.value for book in EXPECTED_BOOKS},
         )
         # 2nd level of index should be the chapter number
-        self.assertTrue(all(isinstance(chapter, int) and chapter >= 0 for chapter in dataframe.index.get_level_values(2)))
+        self.assertTrue(
+            all(isinstance(chapter, int) and chapter >= 0 for chapter in dataframe.index.get_level_values(2))
+        )
         # 3rd level of index should be the verse number
         self.assertTrue(all(isinstance(verse, int) and verse >= 0 for verse in dataframe.index.get_level_values(3)))
 
         # Make sure we can access the text of a verse
         self.assertTrue(all(isinstance(text, str) for text in dataframe["Text"]))
-        self.assertEqual(dataframe.loc[("Book of Mormon", "1 Nephi", 1, 1), "Text"], "I, Nephi, having been born of goodly parents, therefore I was taught somewhat in all the learning of my father; and having seen many afflictions in the course of my days, nevertheless, having been highly favored of the Lord in all my days; yea, having had a great knowledge of the goodness and the mysteries of God, therefore I make a record of my proceedings in my days.")
-
-
-
-
+        self.assertEqual(
+            dataframe.loc[("Book of Mormon", "1 Nephi", 1, 1), "Text"],
+            "I, Nephi, having been born of goodly parents, therefore I was taught somewhat in all the learning of my father; and having seen many afflictions in the course of my days, nevertheless, having been highly favored of the Lord in all my days; yea, having had a great knowledge of the goodness and the mysteries of God, therefore I make a record of my proceedings in my days.",
+        )

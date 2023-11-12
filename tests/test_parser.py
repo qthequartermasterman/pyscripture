@@ -1,5 +1,7 @@
-import hypothesis
 import unittest
+
+import hypothesis
+
 from pyscripture import parser
 
 

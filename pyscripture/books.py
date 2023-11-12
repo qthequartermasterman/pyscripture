@@ -21,7 +21,6 @@ class BookOfMormonBooks(str, enum.Enum):
     Moroni = "Moroni"
 
 
-
 class OldTestamentBooks(str, enum.Enum):
     """The books of the Old Testament."""
 
@@ -98,12 +97,10 @@ class NewTestamentBooks(str, enum.Enum):
     Revelation = "Revelation"
 
 
-
 class DoctrineAndCovenantsBooks(str, enum.Enum):
     """The books of the Doctrine and Covenants."""
 
     DoctrineAndCovenants = "Doctrine and Covenants"
-
 
 
 class PearlOfGreatPriceBooks(str, enum.Enum):
@@ -114,6 +111,7 @@ class PearlOfGreatPriceBooks(str, enum.Enum):
     JosephSmithMatthew = "Joseph Smith--Matthew"
     JosephSmithHistory = "Joseph Smith--History"
     ArticlesOfFaith = "Articles of Faith"
+
 
 parent_names = {
     BookOfMormonBooks: "Book of Mormon",
