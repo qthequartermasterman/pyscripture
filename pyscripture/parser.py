@@ -38,6 +38,15 @@ def parse_scripture_reference(ref: str) -> Tuple[str, List[Tuple[Tuple[int, int]
         >>> parse_scripture_reference("Words of Mormon 1:3")
         ('Words of Mormon', [((1, 3), (1, 3))])
 
+        # TODO: Additional range
+        >>> parse_scripture_reference("John 20:31 (30–31)")
+        ('John', [((20, 30), (20, 31))])
+
+        # TODO: Additional verses
+        >>> parse_scripture_reference("2 Ne. 9:41 (41, 45, 51)")
+        ('2 Ne.', [((9, 41), (9, 41)), ((9, 45), (9, 45)), ((9, 51), (9, 51))])
+
+
     Args:
         ref: The scripture reference to parse.
 
