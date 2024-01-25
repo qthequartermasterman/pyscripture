@@ -1,7 +1,31 @@
-from typing import List, Tuple
+import dataclasses
+from typing import List, Tuple, TypeAlias
+from pyscripture import books
 
 
-def parse_scripture_reference(ref: str) -> Tuple[str, List[Tuple[Tuple[int, int], Tuple[int, int]]]]:
+
+@dataclasses.dataclass
+class ChapterVerse:
+    chapter: int
+    verse: int
+    
+@dataclasses.dataclass
+class VerseRange:
+    start: ChapterVerse
+    end: ChapterVerse
+
+
+ScriptureRanges: TypeAlias = Tuple[
+    str, # Book name
+    List[  # List of ranges
+        Tuple[
+            Tuple[int, int], # Start chapter and verse
+            Tuple[int, int], # End chapter and verse
+        ]
+    ]
+]
+
+def parse_scripture_reference(ref: str) -> ScriptureRanges:
     """Parse a scripture reference into a book and list of ((start_chapter, start_verse), (end_chapter, end_verse) tuples for each range
     in the reference.
 
@@ -46,7 +70,6 @@ def parse_scripture_reference(ref: str) -> Tuple[str, List[Tuple[Tuple[int, int]
         >>> parse_scripture_reference("2 Ne. 9:41 (41, 45, 51)")
         ('2 Ne.', [((9, 41), (9, 41)), ((9, 45), (9, 45)), ((9, 51), (9, 51))])
 
-
     Args:
         ref: The scripture reference to parse.
 
@@ -88,3 +111,43 @@ def parse_scripture_reference(ref: str) -> Tuple[str, List[Tuple[Tuple[int, int]
         ranges.append((start, end))
 
     return name, ranges
+
+def parse_ranges_to_verse_references(lang:str, ranges: ScriptureRanges) -> List[books.VerseReference]:
+    """Parse a list of ranges into a list of verse references.
+
+    Examples:
+        >>> parse_ranges_to_verse_references('eng', ("Jarom", [((1, 1), (1, 1))]))
+        [VerseReference(lang=<SupportedLanguage.eng: 'eng'>, parent_book=<ParentBooks.BookOfMormon: <BookOfMormon.Jarom: 'Jarom'>>, book=<BookOfMormon.Jarom: 'Jarom'>, chapter=1, verse=1)]
+
+        >>> parse_ranges_to_verse_references('eng', ("Jarom", [((1, 1), (1, 2))]))
+        [VerseReference(lang=<SupportedLanguage.eng: 'eng'>, parent_book=<ParentBooks.BookOfMormon: <BookOfMormon.Jarom: 'Jarom'>>, book=<BookOfMormon.Jarom: 'Jarom'>, chapter=1, verse=1), VerseReference(lang=<SupportedLanguage.eng: 'eng'>, parent_book=<ParentBooks.BookOfMormon: <BookOfMormon.Jarom: 'Jarom'>>, book=<BookOfMormon.Jarom: 'Jarom'>, chapter=1, verse=2)]
+
+        >>> parse_ranges_to_verse_references('eng', ("Jarom", [((1, 1), (1, 1)), ((1, 5), (1, 5)), ((1, 8), (1, 8))]))
+        [VerseReference(lang=<SupportedLanguage.eng: 'eng'>, parent_book=<ParentBooks.BookOfMormon: <BookOfMormon.Jarom: 'Jarom'>>, book=<BookOfMormon.Jarom: 'Jarom'>, chapter=1, verse=1), VerseReference(lang=<SupportedLanguage.eng: 'eng'>, parent_book=<ParentBooks.BookOfMormon: <BookOfMormon.Jarom: 'Jarom'>>, book=<BookOfMormon.Jarom: 'Jarom'>, chapter=1, verse=5), VerseReference(lang=<SupportedLanguage.eng: 'eng'>, parent_book=<ParentBooks.BookOfMormon: <BookOfMormon.Jarom: 'Jarom'>>, book=<BookOfMormon.Jarom: 'Jarom'>, chapter=1, verse=8)]
+
+    """
+    book_name, range_list = ranges
+
+    parent_book = books.ParentBooks.from_book_name(book_name)
+    book = parent_book.value[book_name]
+
+    verse_references = []
+
+    for range_tup in range_list:
+        start_tup, end_tup = range_tup
+        start = ChapterVerse(*start_tup)
+        end = ChapterVerse(*end_tup)
+        if start.chapter != end.chapter:
+            raise NotImplementedError("Chapter spans are not yet supported")
+        verse_references.extend(
+            books.VerseReference(
+                lang=lang,
+                parent_book=parent_book,
+                book=book,
+                chapter=start.chapter,
+                verse=verse,
+            )
+            for verse in range(start.verse, end.verse + 1)
+        )
+
+    return verse_references

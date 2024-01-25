@@ -9,11 +9,11 @@ from hypothesis import strategies as st
 from pyscripture import books, download
 
 EXPECTED_BOOKS = itertools.chain(
-    books.BookOfMormonBooks,
-    books.OldTestamentBooks,
-    books.NewTestamentBooks,
-    books.DoctrineAndCovenantsBooks,
-    books.PearlOfGreatPriceBooks,
+    books.BookOfMormon.books,
+    books.OldTestament.books,
+    books.NewTestament.books,
+    books.DoctrineAndCovenants.books,
+    books.PearlOfGreatPrice.books,
 )
 
 

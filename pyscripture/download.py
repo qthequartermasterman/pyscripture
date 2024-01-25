@@ -54,15 +54,15 @@ def download_text() -> str:
 
 def organize_books_lookup() -> Dict[str, str]:
     """Organize books with their Parent Books into a lookup table."""
-    parent_books = {b.value: "Book of Mormon" for b in books.BookOfMormonBooks}
-    for b in books.OldTestamentBooks:
-        parent_books[b.value] = "Old Testament"
-    for b in books.NewTestamentBooks:
-        parent_books[b.value] = "New Testament"
-    for b in books.DoctrineAndCovenantsBooks:
-        parent_books[b.value] = "Doctrine and Covenants"
-    for b in books.PearlOfGreatPriceBooks:
-        parent_books[b.value] = "Pearl of Great Price"
+    parent_books = {b.name: "Book of Mormon" for b in books.BookOfMormon.books}
+    for b in books.OldTestament.books:
+        parent_books[b.name] = "Old Testament"
+    for b in books.NewTestament.books:
+        parent_books[b.name] = "New Testament"
+    for b in books.DoctrineAndCovenants.books:
+        parent_books[b.name] = "Doctrine and Covenants"
+    for b in books.PearlOfGreatPrice.books:
+        parent_books[b.name] = "Pearl of Great Price"
     return parent_books
 
 

@@ -1,0 +1,113 @@
+from typing import Dict, Type, Tuple, Optional
+
+from pyscripture import books
+
+BookOfMormonBooksUri = {
+    books.BookOfMormon["1 Nephi"]: "1-ne",
+    books.BookOfMormon["2 Nephi"]: "2-ne",
+    books.BookOfMormon["Jacob"]: "jacob",
+    books.BookOfMormon["Enos"]: "enos",
+    books.BookOfMormon["Jarom"]: "jarom",
+    books.BookOfMormon["Omni"]: "omni",
+    books.BookOfMormon["Words of Mormon"]: "w-of-m",
+    books.BookOfMormon["Mosiah"]: "mosiah",
+    books.BookOfMormon["Alma"]: "alma",
+    books.BookOfMormon["Helaman"]: "hel",
+    books.BookOfMormon["3 Nephi"]: "3-ne",
+    books.BookOfMormon["4 Nephi"]: "4-ne",
+    books.BookOfMormon["Mormon"]: "morm",
+    books.BookOfMormon["Ether"]: "ether",
+    books.BookOfMormon["Moroni"]: "moro",
+}
+
+OldTestamentBooksUri = {
+    books.OldTestament["Genesis"]: "gen",
+    books.OldTestament["Exodus"]: "ex",
+    books.OldTestament["Leviticus"]: "lev",
+    books.OldTestament["Numbers"]: "num",
+    books.OldTestament["Deuteronomy"]: "deut",
+    books.OldTestament["Joshua"]: "josh",
+    books.OldTestament["Judges"]: "judg",
+    books.OldTestament["Ruth"]: "ruth",
+    books.OldTestament["1 Samuel"]: "1-sam",
+    books.OldTestament["2 Samuel"]: "2-sam",
+    books.OldTestament["1 Kings"]: "1-kgs",
+    books.OldTestament["2 Kings"]: "2-kgs",
+    books.OldTestament["1 Chronicles"]: "1-chr",
+    books.OldTestament["2 Chronicles"]: "2-chr",
+    books.OldTestament["Ezra"]: "ezra",
+    books.OldTestament["Nehemiah"]: "neh",
+    books.OldTestament["Esther"]: "esth",
+    books.OldTestament["Job"]: "job",
+    books.OldTestament["Psalms"]: "ps",
+    books.OldTestament["Proverbs"]: "prov",
+    books.OldTestament["Ecclesiastes"]: "eccl",
+    books.OldTestament["Song of Solomon"]: "song",
+    books.OldTestament["Isaiah"]: "isa",
+    books.OldTestament["Jeremiah"]: "jer",
+    books.OldTestament["Lamentations"]: "lam",
+    books.OldTestament["Ezekiel"]: "ezek",
+    books.OldTestament["Daniel"]: "dan",
+    books.OldTestament["Hosea"]: "hosea",
+    books.OldTestament["Joel"]: "joel",
+    books.OldTestament["Amos"]: "amos",
+    books.OldTestament["Obadiah"]: "obad",
+    books.OldTestament["Jonah"]: "jonah",
+    books.OldTestament["Micah"]: "micah",
+    books.OldTestament["Nahum"]: "nahum",
+    books.OldTestament["Habakkuk"]: "hab",
+    books.OldTestament["Zephaniah"]: "zeph",
+    books.OldTestament["Haggai"]: "hag",
+    books.OldTestament["Zechariah"]: "zech",
+    books.OldTestament["Malachi"]: "mal",
+}
+
+NewTestamentBooksUri = {
+    books.NewTestament["Matthew"]: "matt",
+    books.NewTestament["Mark"]: "mark",
+    books.NewTestament["Luke"]: "luke",
+    books.NewTestament["John"]: "john",
+    books.NewTestament["Acts"]: "acts",
+    books.NewTestament["Romans"]: "rom",
+    books.NewTestament["1 Corinthians"]: "1-cor",
+    books.NewTestament["2 Corinthians"]: "2-cor",
+    books.NewTestament["Galatians"]: "gal",
+    books.NewTestament["Ephesians"]: "eph",
+    books.NewTestament["Philippians"]: "philip",
+    books.NewTestament["Colossians"]: "col",
+    books.NewTestament["1 Thessalonians"]: "1-thes",
+    books.NewTestament["2 Thessalonians"]: "2-thes",
+    books.NewTestament["1 Timothy"]: "1-tim",
+    books.NewTestament["2 Timothy"]: "2-tim",
+    books.NewTestament["Titus"]: "titus",
+    books.NewTestament["Philemon"]: "philem",
+    books.NewTestament["Hebrews"]: "heb",
+    books.NewTestament["James"]: "james",
+    books.NewTestament["1 Peter"]: "1-pet",
+    books.NewTestament["2 Peter"]: "2-pet",
+    books.NewTestament["1 John"]: "1-jn",
+    books.NewTestament["2 John"]: "2-jn",
+    books.NewTestament["3 John"]: "3-jn",
+    books.NewTestament["Jude"]: "jude",
+    books.NewTestament["Revelation"]: "rev",
+}
+
+DoctrineAndCovenantsBooksUri = {
+    books.DoctrineAndCovenants["Doctrine and Covenants"]: "dc",
+}
+
+PearlOfGreatPriceBooksUri = {
+    books.PearlOfGreatPrice["Moses"]: "moses",
+    books.PearlOfGreatPrice["Abraham"]: "abr",
+    books.PearlOfGreatPrice["Joseph Smith--Matthew"]: "js-m",
+    books.PearlOfGreatPrice["Joseph Smith--History"]: "js-h",
+    books.PearlOfGreatPrice["Articles of Faith"]: "a-of-f",
+}
+
+parent_book_uri_mapper: Dict[books.ParentBook, Tuple[str, Optional[Dict[books.Book, str]]]] = {
+    books.BookOfMormon: ("bofm", BookOfMormonBooksUri),
+    books.OldTestament: ("ot", OldTestamentBooksUri),
+    books.NewTestament: ("nt", NewTestamentBooksUri),
+    books.DoctrineAndCovenants: ("dc-testament", DoctrineAndCovenantsBooksUri),
+    books.PearlOfGreatPrice: ("pgp", PearlOfGreatPriceBooksUri),
+}
