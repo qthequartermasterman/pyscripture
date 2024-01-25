@@ -17,6 +17,7 @@ train_dataloader = DataLoader(train_examples, shuffle=True, batch_size=64)
 
 loss = sentence_transformers.losses.MultipleNegativesRankingLoss(model)
 
+model.to('cuda')
 model.fit(
     train_objectives=[(train_dataloader, loss)],
     epochs=1,
